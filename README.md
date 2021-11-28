@@ -22,8 +22,8 @@ https://www.shibajidebnath.com/streaming-audio-player-app-develop-by-angular
         </mat-list-item>
       </div>
 ```
-files contains songs list. currentFile is used to show play icon of selected song.
-openFile(file, i) - by clicking any song, it will start play
+1. files contains songs list. currentFile is used to show play icon of selected song.
+2. openFile(file, i) - by clicking any song, it will start play
 
 ```
 <mat-toolbar-row cols="2" class="media-action-bar" *ngIf="state">
@@ -48,10 +48,10 @@ openFile(file, i) - by clicking any song, it will start play
       </mat-toolbar-row>
 ```
 
-isFirstPlaying() - for first song, previous icon will be disable
-isLastPlaying - for last song, next icon will be disable
-play() - to play the selected song 
-pause() - to pause the selected song
+1. isFirstPlaying() - for first song, previous icon will be disable
+2. isLastPlaying - for last song, next icon will be disable
+3. play() - to play the selected song 
+4. pause() - to pause the selected song
 
 
 ### Reference Urls
