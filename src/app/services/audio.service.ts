@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StreamState } from '../interface/stream-state';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,7 @@ export class AudioService {
     'play',
     'playing',
     'pause',
+    'stop',
     'timeupdate',
     'canplay',
     'loadedmetadata',
@@ -35,27 +37,32 @@ export class AudioService {
   private stateChange: BehaviorSubject<StreamState> = new BehaviorSubject(this.state);
 
   constructor() { }
-  
 
-  updateStateEvents(event: Event): void {
-    switch (event.type) {
+
+  updateStateEvents(eventType: string): void {
+    switch (eventType) {
       case 'canplay':
-        // this.state.duration = this.audioObj.duration;
-        // this.state.readableDuration = this.formatTime(this.state.duration);
+        this.state.duration = this.audioObj.duration;
+        this.state.readableDuration = this.formatTime(this.state.duration);
         this.state.canplay = true;
         break;
       case 'playing':
         this.state.playing = true;
+        console.log(this.state);
         break;
       case 'pause':
         this.state.playing = false;
         break;
-      // case 'timeupdate':
-      //   this.state.currentTime = this.audioObj.currentTime;
-      //   this.state.readableCurrentTime = this.formatTime(
-      //     this.state.currentTime
-      //   );
-      //   break;
+      case 'stop':
+        this.state.playing = false;
+        this.state.currentTime = this.audioObj.currentTime;
+        this.state.readableCurrentTime = this.formatTime(this.state.currentTime);
+        console.log(this.state);
+        break;
+      case 'timeupdate':
+        this.state.currentTime = this.audioObj.currentTime;
+        this.state.readableCurrentTime = this.formatTime(this.state.currentTime);
+        break;
       case 'error':
         this.resetState();
         this.state.error = true;
@@ -83,17 +90,16 @@ export class AudioService {
 
   // audio streaming - play songs one by one
   streamObservable(url): any {
-    
+
     return new Observable(observer => {
       // Play audio
       this.audioObj.src = url;
       this.audioObj.load();
-      setTimeout(() => {
-        this.audioObj.play();
-      }, 0);
+      this.audioObj.play();
 
       const handler = (event: Event) => {
-        this.updateStateEvents(event);
+        console.log(event.type);
+        this.updateStateEvents(event.type);
         observer.next(event);
       };
 
@@ -128,6 +134,7 @@ export class AudioService {
 
   play(): void {
     this.audioObj.play();
+    this.updateStateEvents('playing');
   }
 
   pause(): void {
@@ -135,8 +142,22 @@ export class AudioService {
   }
 
   stop(): void{
+    this.audioObj.pause();
+    this.seekTo(0);
+    this.updateStateEvents('stop');
+  }
+
+  endPlay(): void{
     this.stop$.next();
     this.stop$.subscribe();
-    // this.songsService.update(this.mydata.id, {currentTime: 0}); // Not Use here
+  }
+
+  seekTo(seconds): void {
+    this.audioObj.currentTime = seconds;
+  }
+
+  formatTime(time: number, format: string = 'HH:mm:ss'): any {
+    const momentTime = time * 1000;
+    return moment.utc(momentTime).format(format);
   }
 }

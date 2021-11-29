@@ -31,6 +31,7 @@ export class AppComponent {
     // get state of audio streaming
     this.audioService.getState().subscribe(data => {
       this.state = data;
+      console.log(this.state);
     });
 
     // get index to play the selected song on click function
@@ -66,7 +67,7 @@ export class AppComponent {
   loadData(file): void{
     this.audioService.playStream(file.url).subscribe((ev: Event) => {
       if (ev.type === 'ended'){
-        this.audioService.stop(); // Remove Previous Instance
+        this.audioService.endPlay(); // Remove Previous Instance
         if (!this.isLastPlaying()) {
           this.currentFile.index = this.files.findIndex(elem => elem.id === file.id);
           this.next();
@@ -77,12 +78,20 @@ export class AppComponent {
     });
   }
 
+  onSliderChangeEnd(change): void {
+    this.audioService.seekTo(change.value);
+  }
+
   play(): void {
     this.audioService.play();
   }
 
   pause(): void {
     this.audioService.pause();
+  }
+
+  stop(): void {
+    this.audioService.stop();
   }
 
   previous(): void {
